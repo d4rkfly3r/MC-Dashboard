@@ -11,4 +11,6 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.github.spullara.mustache.java:compiler:0.8.18'
+    compile 'com.google.code.findbugs:findbugs:3.0.1'
 }

@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -67,9 +71,12 @@ public class MainClass {
         public static final TimeUnit SITE_THREAD_KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
         public static final String SERVER_NAME = "MC Dashboard";
         public static final String SITE_WORKING_DIR = "site";
+        public static final DateTimeFormatter DEF_DATETIME_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
         public static BiConsumer<HTTPHeaderParser, Socket> indexPage = (httpHeaderParser, client) -> {
             try {
-                client.getOutputStream().write(new FileResponse("index.html").getData());
+                client.getOutputStream().write(new FileResponse("index.html", new HashMap<String, Object>() {{
+                    put("date", DEF_DATETIME_FORMAT.format(Instant.now()));
+                }}).getData());
                 client.getOutputStream().flush();
             } catch (IOException e) {
                 e.printStackTrace();
