@@ -1,23 +1,24 @@
 package com.github.d4rkfly3r.mcdash.src.util;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class Route {
     private final String key;
-    private final Consumer<HTTPHeaderParser> consumer;
+    private final BiConsumer<HTTPHeaderParser, Socket> consumer;
     private final List<Route> children;
 
-    public Route(String key, Consumer<HTTPHeaderParser> consumer) {
+    public Route(String key, BiConsumer<HTTPHeaderParser, Socket> consumer) {
         this.key = key;
         this.consumer = consumer;
 
         this.children = new ArrayList<>();
     }
 
-    public void call(HTTPHeaderParser httpHeaderParser) {
-        this.consumer.accept(httpHeaderParser);
+    public void call(HTTPHeaderParser httpHeaderParser, Socket outputStream) {
+        this.consumer.accept(httpHeaderParser, outputStream);
     }
 
     public Route addChild(Route child) {
@@ -28,7 +29,7 @@ public class Route {
         return this;
     }
 
-    public Consumer<HTTPHeaderParser> getConsumer() {
+    public BiConsumer<HTTPHeaderParser, Socket> getConsumer() {
         return consumer;
     }
 

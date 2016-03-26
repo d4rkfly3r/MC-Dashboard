@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Core extends Thread {
@@ -22,7 +23,8 @@ public class Core extends Thread {
         super(MCDashThreadGroup.getInstance(), "Core Thread");
         setRunning(true);
         clientThreads = new HashMap<>(MainClass.CONSTANTS.DEF_SITE_THREADS);
-        threadPoolExecutor = new ThreadPoolExecutor(MainClass.CONSTANTS.DEF_SITE_THREADS, MainClass.CONSTANTS.MAX_SITE_THREADS, MainClass.CONSTANTS.SITE_THREAD_KEEP_ALIVE, MainClass.CONSTANTS.SITE_THREAD_KEEP_ALIVE_TIME_UNIT, new ArrayBlockingQueue<>(5));
+        ThreadFactory threadFactory = r -> new Thread(MCDashThreadGroup.getInstance(), r);
+        threadPoolExecutor = new ThreadPoolExecutor(MainClass.CONSTANTS.DEF_SITE_THREADS, MainClass.CONSTANTS.MAX_SITE_THREADS, MainClass.CONSTANTS.SITE_THREAD_KEEP_ALIVE, MainClass.CONSTANTS.SITE_THREAD_KEEP_ALIVE_TIME_UNIT, new ArrayBlockingQueue<>(5), threadFactory);
         new Thread(() -> {
             while (MainClass.isRunning()) {
                 while (this.isRunning()) {

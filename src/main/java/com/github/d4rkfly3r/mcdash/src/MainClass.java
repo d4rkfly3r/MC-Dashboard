@@ -3,8 +3,15 @@ package com.github.d4rkfly3r.mcdash.src;
 import com.github.d4rkfly3r.mcdash.src.ajax.AJAXHandler;
 import com.github.d4rkfly3r.mcdash.src.core.Core;
 import com.github.d4rkfly3r.mcdash.src.plugins.Plugins;
+import com.github.d4rkfly3r.mcdash.src.util.FileResponse;
+import com.github.d4rkfly3r.mcdash.src.util.HTTPHeaderParser;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 public class MainClass {
 
@@ -59,5 +66,22 @@ public class MainClass {
         public static final long SITE_THREAD_KEEP_ALIVE = 5;
         public static final TimeUnit SITE_THREAD_KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
         public static final String SERVER_NAME = "MC Dashboard";
+        public static final String SITE_WORKING_DIR = "site";
+        public static BiConsumer<HTTPHeaderParser, Socket> indexPage = (httpHeaderParser, client) -> {
+            try {
+                client.getOutputStream().write(new FileResponse("index.html").getData());
+                client.getOutputStream().flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+        static {
+            try {
+                Files.createDirectories(Paths.get(SITE_WORKING_DIR));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

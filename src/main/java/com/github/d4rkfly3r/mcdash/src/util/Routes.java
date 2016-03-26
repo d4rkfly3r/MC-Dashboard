@@ -1,5 +1,7 @@
 package com.github.d4rkfly3r.mcdash.src.util;
 
+import com.github.d4rkfly3r.mcdash.src.MainClass;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,8 +9,8 @@ import java.util.Optional;
 
 public class Routes {
 
-    private static Route rootRoute = new Route("", System.err::println).addChild(new Route("index", System.out::println)).addChild(
-            new Route("test", null).addChild(new Route("index", System.out::println))
+    private static Route rootRoute = new Route("", MainClass.CONSTANTS.indexPage).addChild(new Route("index", null)).addChild(
+            new Route("test", null).addChild(new Route("index", null))
     );
 
     public static boolean routeAvailable(HTTPHeaderParser headers) {
@@ -23,14 +25,12 @@ public class Routes {
     }
 
     private static boolean iterateThroughRoutes(Route rootRoute, List<String> segments) {
-        System.out.println(rootRoute.getChildren().size() + " | " + segments);
         if (rootRoute.getChildren().size() == 0 && segments.size() == 0) {
-            return true;
+            return rootRoute.getConsumer() != null;
         }
         if ((rootRoute.getChildren().size() == 0 && segments.size() != 0) || segments.size() == 0) {
             return false;
         }
-        System.out.println("M");
         Optional<Route> tr = rootRoute.getChildren().parallelStream().filter(route -> route.getKey().equalsIgnoreCase(segments.get(0))).findFirst();
         if (tr.isPresent()) {
             segments.remove(0);
@@ -42,5 +42,26 @@ public class Routes {
 
     public static boolean isRouteSpecial(HTTPHeaderParser headers) {
         return false;
+    }
+
+    public static Route getRoute(HTTPHeaderParser headers) {
+        List<String> segments = new ArrayList<>(Arrays.asList(headers.getRequestURL().split("/")));
+        return segments.size() == 0 ? rootRoute : getRoute(rootRoute, segments);
+    }
+
+    private static Route getRoute(Route rootRoute, List<String> segments) {
+        if (rootRoute.getChildren().size() == 0 && segments.size() == 0) {
+            return rootRoute;
+        }
+        if ((rootRoute.getChildren().size() == 0 && segments.size() != 0) || segments.size() == 0) {
+            return null;
+        }
+        Optional<Route> tr = rootRoute.getChildren().parallelStream().filter(route -> route.getKey().equalsIgnoreCase(segments.get(0))).findFirst();
+        if (tr.isPresent()) {
+            segments.remove(0);
+            return getRoute(tr.get(), segments);
+        } else {
+            return null;
+        }
     }
 }

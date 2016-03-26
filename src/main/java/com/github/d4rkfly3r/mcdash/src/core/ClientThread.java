@@ -22,8 +22,6 @@ public class ClientThread implements Runnable {
             HTTPHeaderParser headers = new HTTPHeaderParser(client.getInputStream());
             headers.parseRequest();
 
-            headers.getHeaders().forEach((o, o2) -> System.out.println(o + " | " + o2));
-
             if (!Routes.routeAvailable(headers)) {
                 PrintWriter printWriter = new PrintWriter(client.getOutputStream());
                 printWriter.println("HTTP/1.1 404 Not Found");
@@ -55,6 +53,7 @@ public class ClientThread implements Runnable {
                 printWriter.println("Content-Type: text/html");
                 printWriter.println();
                 printWriter.flush();
+                Routes.getRoute(headers).call(headers, client);
             }
 
             client.close();
